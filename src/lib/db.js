@@ -29,9 +29,29 @@ const defaultData = {
     apiKey: "",
     provider: "openrouter",
     model: "openai/gpt-3.5-turbo",
-    systemPrompt: "You are the helpful AI Admission Counselor..."
+    systemPrompt: "You are the helpful AI Admission Counselor for Apex Institute of Technology & Sciences. Use the college information provided below to answer user queries."
   },
-  collegeInfo: {},
+  collegeInfo: {
+    name: "Apex Institute of Technology & Sciences",
+    tagline: "Fostering Innovation, Integrity, and Excellence since 2010",
+    description: "Apex Institute is a premier institution offering state-of-the-art engineering, management, and technology education.",
+    location: "Silicon Valley, CA (Metro Campus)",
+    email: "admissions@apex-institute.edu",
+    phone: "+1 (555) 019-2834",
+    courses: [
+      { id: "c1", name: "B.Tech Computer Science & Engineering", duration: "4 Years", fees: "₹1,50,000 / year", eligibility: "High school graduate with Physics, Chemistry, and Math. Min 75% aggregate." }
+    ],
+    facilities: [
+      { name: "Robotics & AI Center", description: "State-of-the-art laboratory powered by industry-grade equipment." }
+    ],
+    admissionProcess: [
+      "Step 1: Submit online enquiry.",
+      "Step 2: Fill Application Form."
+    ],
+    dates: [
+      { event: "Applications Open", date: "August 1, 2026" }
+    ]
+  },
   keywords: [],
   leads: []
 };

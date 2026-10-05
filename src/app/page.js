@@ -199,7 +199,7 @@ export default function Home() {
       if (res.ok) {
         const data = await res.json();
         setDb(data);
-        if (data.collegeInfo.courses.length > 0) {
+        if (data?.collegeInfo?.courses?.length > 0) {
           setLeadForm(prev => ({ ...prev, course: data.collegeInfo.courses[0].name }));
         }
       }
