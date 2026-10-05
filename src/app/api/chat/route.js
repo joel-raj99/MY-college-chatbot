@@ -9,7 +9,7 @@ export async function POST(request) {
     }
 
     const db = await readDB();
-    const { settings, collegeInfo, keywords } = db;
+    const { settings = {}, collegeInfo = {}, keywords = [] } = db || {};
     let botReply = "";
     let usedAI = false;
 
@@ -31,33 +31,33 @@ export async function POST(request) {
       try {
         const apiKey = settings.apiKey.trim();
         const provider = settings.provider || 'openrouter'; // default or fallback to openrouter
-        const systemPrompt = `${settings.systemPrompt}
+        const systemPrompt = `${settings.systemPrompt || ''}
 
 IMPORTANT LANGUAGE INSTRUCTION:
 You MUST reply to the user in ${targetLangName} language (Language code: ${language}). Keep all technical facts, fees, and college details accurate.
 
 Here is the official college information for your reference:
-COLLEGE NAME: ${collegeInfo.name}
-TAGLINE: ${collegeInfo.tagline}
-DESCRIPTION: ${collegeInfo.description}
-LOCATION: ${collegeInfo.location}
-EMAIL: ${collegeInfo.email}
-PHONE: ${collegeInfo.phone}
+COLLEGE NAME: ${collegeInfo.name || ''}
+TAGLINE: ${collegeInfo.tagline || ''}
+DESCRIPTION: ${collegeInfo.description || ''}
+LOCATION: ${collegeInfo.location || ''}
+EMAIL: ${collegeInfo.email || ''}
+PHONE: ${collegeInfo.phone || ''}
 
 AVAILABLE COURSES:
-${collegeInfo.courses.map(c => `- ${c.name} (${c.duration}): Fees are ${c.fees}. Eligibility: ${c.eligibility}`).join('\n')}
+${(collegeInfo.courses || []).map(c => `- ${c.name} (${c.duration}): Fees are ${c.fees}. Eligibility: ${c.eligibility}`).join('\n')}
 
 CAMPUS FACILITIES:
-${collegeInfo.facilities.map(f => `- ${f.name}: ${f.description}`).join('\n')}
+${(collegeInfo.facilities || []).map(f => `- ${f.name}: ${f.description}`).join('\n')}
 
 ADMISSION PROCESS:
-${collegeInfo.admissionProcess.map((step, idx) => `${idx + 1}. ${step}`).join('\n')}
+${(collegeInfo.admissionProcess || []).map((step, idx) => `${idx + 1}. ${step}`).join('\n')}
 
 KEY ADMISSION DATES & DEADLINES:
-${collegeInfo.dates.map(d => `- ${d.event}: ${d.date}`).join('\n')}
+${(collegeInfo.dates || []).map(d => `- ${d.event}: ${d.date}`).join('\n')}
 
 CUSTOM PRE-DEFINED FAQS (Fallback Keywords):
-${keywords.map(kw => `- Topic "${kw.keyword}": ${kw.reply}`).join('\n')}
+${(keywords || []).map(kw => `- Topic "${kw.keyword}": ${kw.reply}`).join('\n')}
 `;
 
         if (provider === 'openrouter') {
@@ -179,26 +179,26 @@ ${keywords.map(kw => `- Topic "${kw.keyword}": ${kw.reply}`).join('\n')}
       } else {
         // Simple NLP Fallback checking general categories
         if (cleanMsg.includes("course") || cleanMsg.includes("program") || cleanMsg.includes("degrees") || cleanMsg.includes("study")) {
-          botReply = `We offer several high-quality undergraduate and graduate programs at ${collegeInfo.name}: \n\n` + 
-            collegeInfo.courses.map(c => `• **${c.name}** (${c.duration}) - Fees: ${c.fees}`).join('\n') + 
+          botReply = `We offer several high-quality undergraduate and graduate programs at ${collegeInfo.name || 'our institute'}: \n\n` + 
+            (collegeInfo.courses || []).map(c => `• **${c.name}** (${c.duration}) - Fees: ${c.fees}`).join('\n') + 
             `\n\nWhich program would you like to know more about?`;
         } else if (cleanMsg.includes("date") || cleanMsg.includes("deadline") || cleanMsg.includes("schedule") || cleanMsg.includes("apply when")) {
           botReply = `Here are the important dates for our admission cycle: \n\n` +
-            collegeInfo.dates.map(d => `• **${d.event}**: ${d.date}`).join('\n') +
+            (collegeInfo.dates || []).map(d => `• **${d.event}**: ${d.date}`).join('\n') +
             `\n\nMake sure to complete your application before the deadlines!`;
         } else if (cleanMsg.includes("facility") || cleanMsg.includes("campus") || cleanMsg.includes("lab") || cleanMsg.includes("library") || cleanMsg.includes("sports")) {
           botReply = `Our campus is equipped with premium facilities: \n\n` +
-            collegeInfo.facilities.map(f => `• **${f.name}**: ${f.description}`).join('\n') +
+            (collegeInfo.facilities || []).map(f => `• **${f.name}**: ${f.description}`).join('\n') +
             `\n\nWould you like information on on-campus hostel housing?`;
         } else if (cleanMsg.includes("process") || cleanMsg.includes("apply") || cleanMsg.includes("admission") || cleanMsg.includes("how to")) {
           botReply = `Our admission process is straightforward: \n\n` +
-            collegeInfo.admissionProcess.map(step => `• ${step}`).join('\n') +
+            (collegeInfo.admissionProcess || []).map(step => `• ${step}`).join('\n') +
             `\n\nYou can start by entering your contact details in our chatbot to open an enquiry!`;
         } else if (cleanMsg.includes("contact") || cleanMsg.includes("email") || cleanMsg.includes("phone") || cleanMsg.includes("address") || cleanMsg.includes("location")) {
-          botReply = `You can reach the ${collegeInfo.name} admission office at:\n• **Email**: ${collegeInfo.email}\n• **Phone**: ${collegeInfo.phone}\n• **Campus Location**: ${collegeInfo.location}`;
+          botReply = `You can reach the ${collegeInfo.name || 'our'} admission office at:\n• **Email**: ${collegeInfo.email || ''}\n• **Phone**: ${collegeInfo.phone || ''}\n• **Campus Location**: ${collegeInfo.location || ''}`;
         } else {
           // General welcome / help response
-          botReply = `Hello! Thanks for your enquiry. I can help you with details about **${collegeInfo.name}**. \n\nYou can ask me about:\n• **Courses** we offer\n• Tuition **Fees** & **Scholarships**\n• On-campus **Hostel** facilities\n• **Placements** & recruiting partners\n• **Admission process** & key **Deadlines**\n\nWhat would you like to explore today?`;
+          botReply = `Hello! Thanks for your enquiry. I can help you with details about **${collegeInfo.name || 'our institute'}**. \n\nYou can ask me about:\n• **Courses** we offer\n• Tuition **Fees** & **Scholarships**\n• On-campus **Hostel** facilities\n• **Placements** & recruiting partners\n• **Admission process** & key **Deadlines**\n\nWhat would you like to explore today?`;
         }
       }
     }

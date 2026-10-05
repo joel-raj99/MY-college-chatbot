@@ -129,13 +129,15 @@ export default function AdminPanel() {
       showToast("Course name and fees are required", "error");
       return;
     }
-    const updatedCourses = [...db.collegeInfo.courses, { ...newCourse, id: `c-${Date.now()}` }];
+    const currentCourses = db?.collegeInfo?.courses || [];
+    const updatedCourses = [...currentCourses, { ...newCourse, id: `c-${Date.now()}` }];
     const success = await handleAction('update_college_info', { courses: updatedCourses });
     if (success) setNewCourse({ name: '', duration: '4 Years', fees: '', eligibility: '' });
   };
 
   const handleDeleteCourse = async (courseId) => {
-    const updatedCourses = db.collegeInfo.courses.filter(c => c.id !== courseId);
+    const currentCourses = db?.collegeInfo?.courses || [];
+    const updatedCourses = currentCourses.filter(c => c.id !== courseId);
     await handleAction('update_college_info', { courses: updatedCourses });
   };
 
@@ -145,13 +147,15 @@ export default function AdminPanel() {
       showToast("Facility name and description are required", "error");
       return;
     }
-    const updatedFacilities = [...db.collegeInfo.facilities, { ...newFacility }];
+    const currentFacilities = db?.collegeInfo?.facilities || [];
+    const updatedFacilities = [...currentFacilities, { ...newFacility }];
     const success = await handleAction('update_college_info', { facilities: updatedFacilities });
     if (success) setNewFacility({ name: '', description: '' });
   };
 
   const handleDeleteFacility = async (facilityName) => {
-    const updatedFacilities = db.collegeInfo.facilities.filter(f => f.name !== facilityName);
+    const currentFacilities = db?.collegeInfo?.facilities || [];
+    const updatedFacilities = currentFacilities.filter(f => f.name !== facilityName);
     await handleAction('update_college_info', { facilities: updatedFacilities });
   };
 
@@ -161,13 +165,15 @@ export default function AdminPanel() {
       showToast("Event name and date are required", "error");
       return;
     }
-    const updatedDates = [...db.collegeInfo.dates, { ...newDate }];
+    const currentDates = db?.collegeInfo?.dates || [];
+    const updatedDates = [...currentDates, { ...newDate }];
     const success = await handleAction('update_college_info', { dates: updatedDates });
     if (success) setNewDate({ event: '', date: '' });
   };
 
   const handleDeleteDate = async (eventIndex) => {
-    const updatedDates = db.collegeInfo.dates.filter((_, idx) => idx !== eventIndex);
+    const currentDates = db?.collegeInfo?.dates || [];
+    const updatedDates = currentDates.filter((_, idx) => idx !== eventIndex);
     await handleAction('update_college_info', { dates: updatedDates });
   };
 
@@ -328,7 +334,7 @@ export default function AdminPanel() {
   }
 
   const stats = getDashboardStats();
-  const filteredLeads = db.leads.filter(lead => {
+  const filteredLeads = (db?.leads || []).filter(lead => {
     const searchString = `${lead.name} ${lead.course} ${lead.email} ${lead.phone}`.toLowerCase();
     return searchString.includes(leadSearch.toLowerCase());
   });
@@ -397,9 +403,9 @@ export default function AdminPanel() {
           <div className="rounded-lg bg-slate-50 p-3 border border-slate-200">
             <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Chatbot Mode</p>
             <div className="flex items-center gap-2 mt-1.5">
-              <span className={`h-2 w-2 rounded-full ${db.settings.mode === 'ai' && db.settings.apiKey ? 'bg-emerald-500 shadow-sm' : 'bg-amber-500 shadow-sm'}`}></span>
+              <span className={`h-2 w-2 rounded-full ${db?.settings?.mode === 'ai' && db?.settings?.apiKey ? 'bg-emerald-500 shadow-sm' : 'bg-amber-500 shadow-sm'}`}></span>
               <p className="text-xs font-semibold text-slate-700">
-                {db.settings.mode === 'ai' && db.settings.apiKey ? 'AI Agent Enabled' : 'Rule-Based Active'}
+                {db?.settings?.mode === 'ai' && db?.settings?.apiKey ? 'AI Agent Enabled' : 'Rule-Based Active'}
               </p>
             </div>
           </div>
@@ -516,7 +522,7 @@ export default function AdminPanel() {
                   <h3 className="font-bold text-slate-900 text-base mb-4">Leads by Status Pipeline</h3>
                   <div className="space-y-4">
                     {PIPELINES.map(status => {
-                      const count = db.leads.filter(l => l.status === status).length;
+                      const count = (db?.leads || []).filter(l => l.status === status).length;
                       const percentage = stats.total > 0 ? (count / stats.total) * 100 : 0;
                       return (
                         <div key={status} className="space-y-1">
@@ -546,12 +552,12 @@ export default function AdminPanel() {
                 <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-xs">
                   <h3 className="font-bold text-slate-900 text-base mb-4">Popular Courses Interested</h3>
                   <div className="space-y-4">
-                    {db.collegeInfo.courses.map(course => {
-                      const count = db.leads.filter(l => l.course === course.name).length;
-                      const maxCount = Math.max(...db.collegeInfo.courses.map(c => db.leads.filter(l => l.course === c.name).length), 1);
+                    {(db?.collegeInfo?.courses || []).map(course => {
+                      const count = (db?.leads || []).filter(l => l.course === course.name).length;
+                      const maxCount = Math.max(...(db?.collegeInfo?.courses || []).map(c => (db?.leads || []).filter(l => l.course === c.name).length), 1);
                       const percentage = (count / maxCount) * 100;
                       return (
-                        <div key={course.id} className="space-y-1">
+                        <div key={course.id || course.name} className="space-y-1">
                           <div className="flex items-center justify-between text-xs">
                             <span className="text-slate-700 font-medium truncate max-w-50">{course.name}</span>
                             <span className="text-slate-600 font-bold shrink-0">{count}</span>
@@ -585,7 +591,7 @@ export default function AdminPanel() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      {db.leads.slice(0, 5).map(lead => (
+                      {(db?.leads || []).slice(0, 5).map(lead => (
                         <tr key={lead.id} className="hover:bg-slate-50 text-slate-700">
                           <td className="py-3.5 px-4 font-semibold text-slate-900">{lead.name}</td>
                           <td className="py-3.5 px-4">
@@ -631,7 +637,7 @@ export default function AdminPanel() {
                   />
                 </div>
                 <div className="text-xs text-slate-500 font-semibold shrink-0">
-                  Showing {filteredLeads.length} of {db.leads.length} leads
+                  Showing {filteredLeads.length} of {(db?.leads || []).length} leads
                 </div>
               </div>
 
@@ -922,8 +928,8 @@ export default function AdminPanel() {
                 <div className="rounded-xl border border-slate-200 bg-white p-6 lg:col-span-2 space-y-4 shadow-xs">
                   <h3 className="font-bold text-slate-900 text-base">Offered Programs / Courses</h3>
                   <div className="divide-y divide-slate-100 space-y-3">
-                    {db.collegeInfo.courses.map(course => (
-                      <div key={course.id} className="pt-3 flex items-start justify-between gap-4">
+                    {(db?.collegeInfo?.courses || []).map(course => (
+                      <div key={course.id || course.name} className="pt-3 flex items-start justify-between gap-4">
                         <div>
                           <h4 className="font-bold text-sm text-slate-900">{course.name}</h4>
                           <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600 mt-1 font-semibold">
@@ -1013,7 +1019,7 @@ export default function AdminPanel() {
                 <div className="rounded-xl border border-slate-200 bg-white p-6 space-y-4 shadow-xs">
                   <h3 className="font-bold text-slate-900 text-base">Campus Facilities</h3>
                   <div className="divide-y divide-slate-100 space-y-3">
-                    {db.collegeInfo.facilities.map((fac, idx) => (
+                    {(db?.collegeInfo?.facilities || []).map((fac, idx) => (
                       <div key={idx} className="pt-3 flex justify-between gap-4">
                         <div>
                           <h4 className="font-bold text-xs text-slate-900">{fac.name}</h4>
@@ -1054,7 +1060,7 @@ export default function AdminPanel() {
                 <div className="rounded-xl border border-slate-200 bg-white p-6 space-y-4 shadow-xs">
                   <h3 className="font-bold text-slate-900 text-base">Key Dates & Deadlines</h3>
                   <div className="divide-y divide-slate-100 space-y-3">
-                    {db.collegeInfo.dates.map((item, idx) => (
+                    {(db?.collegeInfo?.dates || []).map((item, idx) => (
                       <div key={idx} className="pt-3 flex justify-between gap-4">
                         <div>
                           <h4 className="font-bold text-xs text-slate-900">{item.event}</h4>
@@ -1116,7 +1122,7 @@ export default function AdminPanel() {
                   </div>
                   
                   <div className="space-y-4 max-h-125 overflow-y-auto pr-2">
-                    {db.keywords
+                    {(db?.keywords || [])
                       .filter(kw => kw.keyword.toLowerCase().includes(keywordSearch.toLowerCase()))
                       .map(kw => (
                         <div key={kw.id} className="border border-slate-200 bg-slate-50/50 p-4 rounded-lg flex flex-col justify-between">

@@ -34,6 +34,7 @@ export async function POST(request) {
         break;
 
       case 'save_keyword':
+        if (!db.keywords) db.keywords = [];
         if (payload.id) {
           // Update existing keyword
           db.keywords = db.keywords.map(kw => kw.id === payload.id ? { ...kw, ...payload } : kw);
@@ -50,11 +51,12 @@ export async function POST(request) {
         break;
 
       case 'delete_keyword':
-        db.keywords = db.keywords.filter(kw => kw.id !== payload.id);
+        db.keywords = (db.keywords || []).filter(kw => kw.id !== payload.id);
         success = await writeDB(db);
         break;
 
       case 'save_lead':
+        if (!db.leads) db.leads = [];
         if (payload.id) {
           // Update existing lead
           db.leads = db.leads.map(lead => lead.id === payload.id ? { ...lead, ...payload } : lead);
@@ -77,17 +79,17 @@ export async function POST(request) {
         break;
 
       case 'delete_lead':
-        db.leads = db.leads.filter(lead => lead.id !== payload.id);
+        db.leads = (db.leads || []).filter(lead => lead.id !== payload.id);
         success = await writeDB(db);
         break;
 
       case 'update_lead_status':
-        db.leads = db.leads.map(lead => lead.id === payload.id ? { ...lead, status: payload.status } : lead);
+        db.leads = (db.leads || []).map(lead => lead.id === payload.id ? { ...lead, status: payload.status } : lead);
         success = await writeDB(db);
         break;
 
       case 'update_lead_notes':
-        db.leads = db.leads.map(lead => lead.id === payload.id ? { ...lead, notes: payload.notes } : lead);
+        db.leads = (db.leads || []).map(lead => lead.id === payload.id ? { ...lead, notes: payload.notes } : lead);
         success = await writeDB(db);
         break;
 

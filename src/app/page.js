@@ -343,7 +343,11 @@ How can I assist you with your admissions today? You can ask about fees, hostel 
     );
   }
 
-  const { collegeInfo } = db;
+  const collegeInfo = db?.collegeInfo || {};
+  const courses = collegeInfo.courses || [];
+  const facilities = collegeInfo.facilities || [];
+  const admissionProcess = collegeInfo.admissionProcess || [];
+  const dates = collegeInfo.dates || [];
 
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900 flex flex-col justify-between selection:bg-violet-600 selection:text-white">
@@ -353,7 +357,7 @@ How can I assist you with your admissions today? You can ask about fees, hostel 
         <div className="flex items-center gap-3">
           <div className="h-9 w-9 rounded-lg bg-linear-to-tr from-violet-600 to-indigo-600 flex items-center justify-center font-bold text-white shadow-md shadow-violet-500/20">A</div>
           <div>
-            <h1 className="font-extrabold text-sm tracking-tight text-slate-900">{collegeInfo.name.toUpperCase()}</h1>
+            <h1 className="font-extrabold text-sm tracking-tight text-slate-900">{(collegeInfo.name || 'COLLEGE PORTAL').toUpperCase()}</h1>
             <p className="text-[10px] text-violet-600 font-semibold tracking-wide uppercase">Admissions 2026-27</p>
           </div>
         </div>
@@ -476,7 +480,7 @@ How can I assist you with your admissions today? You can ask about fees, hostel 
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {collegeInfo.courses.map(course => (
+              {courses.map(course => (
                 <div key={course.id} className="rounded-xl border border-slate-200 bg-white p-6 flex flex-col justify-between shadow-xs hover:shadow-md hover:border-violet-300 transition">
                   <div className="space-y-3">
                     <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-violet-50 text-violet-700 border border-violet-200">{course.duration}</span>
@@ -517,7 +521,7 @@ How can I assist you with your admissions today? You can ask about fees, hostel 
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {collegeInfo.facilities.map((fac, idx) => (
+              {facilities.map((fac, idx) => (
                 <div key={idx} className="rounded-xl border border-slate-200 bg-white p-6 flex items-start gap-4 shadow-xs">
                   <div className="h-10 w-10 shrink-0 rounded-lg bg-violet-100 text-violet-700 flex items-center justify-center font-bold">
                     {idx + 1}
@@ -543,7 +547,7 @@ How can I assist you with your admissions today? You can ask about fees, hostel 
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
-              {collegeInfo.admissionProcess.map((step, idx) => (
+              {admissionProcess.map((step, idx) => (
                 <div key={idx} className="rounded-xl border border-slate-200 bg-white p-6 space-y-3 relative shadow-xs">
                   <span className="absolute -top-3 -left-3 h-8 w-8 rounded-full bg-violet-600 text-white font-extrabold text-xs flex items-center justify-center shadow-md">{idx + 1}</span>
                   <h4 className="font-bold text-sm text-slate-900 pt-2">Step {idx + 1}</h4>
@@ -558,7 +562,7 @@ How can I assist you with your admissions today? You can ask about fees, hostel 
             <div className="rounded-xl border border-slate-200 bg-white p-6 md:p-8 max-w-2xl mx-auto shadow-xs">
               <h4 className="font-bold text-slate-900 text-base text-center mb-6">Key Application Dates (Cycle 2026)</h4>
               <div className="space-y-4">
-                {collegeInfo.dates.map((item, idx) => (
+                {dates.map((item, idx) => (
                   <div key={idx} className="flex justify-between items-center text-xs font-semibold border-b border-slate-100 pb-3 last:border-0 last:pb-0">
                     <span className="text-slate-700">{item.event}</span>
                     <span className="text-violet-600 font-bold">{item.date}</span>
@@ -729,8 +733,8 @@ How can I assist you with your admissions today? You can ask about fees, hostel 
                         onChange={(e) => setLeadForm({ ...leadForm, course: e.target.value })}
                         className="w-full bg-white border border-slate-200 rounded-lg px-2 py-2 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-violet-500 transition"
                       >
-                        {collegeInfo.courses.map(c => (
-                          <option key={c.id} value={c.name}>{c.name}</option>
+                        {courses.map(c => (
+                          <option key={c.id || c.name} value={c.name}>{c.name}</option>
                         ))}
                       </select>
                     </div>
